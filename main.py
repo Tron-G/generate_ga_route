@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import random
 import pandas as pd
 
+from timeit import default_timer as timer
+
 
 def drawNetwork(G):
     """绘制带边标签的网络图"""
@@ -33,7 +35,7 @@ def find_min(dual_list):
         return 1
 
 
-def change_link(start, end, dual_graph, transport_index, min_price_graph, add_time=200):
+def change_link(start, end, dual_graph, transport_index, min_price_graph, add_time=100):
     """手动增加出租车用时"""
     # min_price_graph[start][end] = 999
     # min_price_graph[end][start] = 999
@@ -50,9 +52,14 @@ def change_link(start, end, dual_graph, transport_index, min_price_graph, add_ti
 
 
 if __name__ == '__main__':
+
+    start = timer()
+
     # 指定输入文件夹
-    # fp = FileProcessing("ga_input_data")
-    fp = FileProcessing("cut_time_test_ga")
+    fp = FileProcessing("ga_input_data_7_9_test")
+    # fp = FileProcessing("ga_input_data_0_24")
+    # fp = FileProcessing("ga_input_data_7_9")
+    # fp = FileProcessing("ga_input_data_16_19")
 
     # 加载邻接矩阵
     dual_graph = fp.load_data("Undirected_community_dual_matrix")
@@ -60,15 +67,18 @@ if __name__ == '__main__':
     min_price_graph = fp.load_data("min_price_graph")
 
     # ================================= 手动修改数据 ============================================
-    # change_link(20, 4, dual_graph, transport_index, min_price_graph)
-    change_link(19, 4, dual_graph, transport_index, min_price_graph)
-    change_link(2, 4, dual_graph, transport_index, min_price_graph)
-    change_link(6, 4, dual_graph, transport_index, min_price_graph)
+    # change_link(286, 235, dual_graph, transport_index, min_price_graph)
+    # change_link(286, 233, dual_graph, transport_index, min_price_graph)
+    # change_link(291, 210, dual_graph, transport_index, min_price_graph, 200)
+    # change_link(19, 4, dual_graph, transport_index, min_price_graph)
+    # change_link(2, 4, dual_graph, transport_index, min_price_graph)
+    # change_link(30, 4, dual_graph, transport_index, min_price_graph)
+    # change_link(6, 4, dual_graph, transport_index, min_price_graph)
     # change_link(20, 2, dual_graph, transport_index, min_price_graph)
     # change_link(41, 4, dual_graph, transport_index, min_price_graph)
     # change_link(21, 2, dual_graph, transport_index, min_price_graph)
     # change_link(21, 18, dual_graph, transport_index, min_price_graph)
-    change_link(21, 0, dual_graph, transport_index, min_price_graph)
+    # change_link(21, 0, dual_graph, transport_index, min_price_graph)
     # ================================= 手动修改数据 ============================================
 
     node_len = len(min_price_graph)
@@ -84,13 +94,18 @@ if __name__ == '__main__':
             if min_price_graph[i][j] != -1:
                 input_edges.append((str(i), str(j), min_price_graph[i][j]))
     # print(input_edges)
+
+
+
+
     G = nx.Graph()
     # 往图添加节点和边
     G.add_nodes_from(input_nodes)
     G.add_weighted_edges_from(input_edges)
     # drawNetwork(G)
-
-    ga = MyGA(G, min_price_graph, transport_index, input_nodes, ["21", "4"], 100, 25, 0.8, 0.1)
+    # 296 286
+    # "19", "221"
+    ga = MyGA(G, min_price_graph, transport_index, input_nodes, ["161", "342"], 100, 40, 0.8, 0.05)
     x, y = ga.run()
     fp.save_file(ga.all_history_Y, "all_history_Y")
 
@@ -104,6 +119,10 @@ if __name__ == '__main__':
     ax[2].plot(ga.generation_avg_Y)
     ax[2].set_title("generation_avg_Y")
     plt.show()
+
+    end = timer()
+
+    print("using time: ", end - start)
     pass
 
 

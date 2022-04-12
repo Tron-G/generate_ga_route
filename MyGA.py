@@ -8,14 +8,14 @@ import numpy as np
 
 
 class MyGA:
+    """使用a-star改良的遗传算法"""
     def __init__(self, graph_g, min_price_graph, transport_index, node_list, from_to, size_pop=20, max_iter=50, prob_cross=0.5,
                  prob_mut=0.01):
         """
-
-        :param graph_g:
-        :param min_price_graph: min_price_graph
-        :param transport_index: transport_index
-        :param node_list:
+        :param graph_g: networkx 生成的网络图
+        :param min_price_graph: 二维矩阵，节点到节点的最短用时表， -1表示不可达
+        :param transport_index: 对应最短用时表中的出行模式，0为单车，1为出租车，-1表示不可达
+        :param node_list: 输入的网络图中的节点编号数组，字符串数组，用于生成随机路线时选择中间节点
         :param from_to:[from, to] 起点和终点
         :param size_pop: 种群数量
         :param max_iter: 迭代次数
@@ -78,8 +78,16 @@ class MyGA:
                 middle_node.append(temp_node)
         # print(middle_node, len(middle_node))
         for i in range(self.size_pop):
-            # 增加多样性，随机选择1到3个中间节点
-            middle_node_nums = random.randint(1, 3)
+            # 增加多样性，随机选择1到3个中间节点, 增加中间节点为1的概率
+            dice = random.random()
+            middle_node_nums = 1
+            if 0 < dice <= 0.3:
+                middle_node_nums = 2
+            elif 0.3 < dice <= 0.7:
+                middle_node_nums = 1
+            elif 0.7 < dice < 1:
+                middle_node_nums = 3
+            # middle_node_nums = random.randint(1, 3)
             path = []
             if middle_node_nums == 1:
                 rand_node1 = int(random.random() * len(middle_node))
@@ -424,6 +432,7 @@ class MyGA:
                 x_set.append(self.X[i])
                 y_set.append(self.Y[i])
         np_y = np.array(y_set)
+        # 对数据进行从小到大进行排序，返回数据的索引值
         sort_index = np_y.argsort()
         print("*************** total routes: ", len(x_set), "  ********************* ")
         for i in range(len(x_set)):
